@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Canvas Jam</title>
+<style>
+body {
+	display:flex;
+	align-items:center;
+	justify-content:space-evenly;
+	width:100vw;
+	height:100vh;
+	padding:0;
+	margin:0;
+}
+</style>
+</head>
+<body>
+<canvas id="drawing" width="640" height="480"></canvas>
+<script>
+
+//see also: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial
+
+//the 'canvas' is the HTML DOM element created by the <canvas> tag above:
+const canvas = document.getElementById("drawing");
+
+//the 'context' (ctx) is the thing we use to draw into the canvas:
+// https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D
+const ctx = canvas.getContext('2d');
+const width = canvas.width;
+const height = canvas.height;
+
+
+//will wrap drawing so that we can animate things:
+function draw(time) {
+	//setTransfrom(a,b, c,d, e,f) sets the transformation matrix for the canvas.
+	// This means that drawing point x,y is mapped to
+	// [ a c e ] * [ x ]
+	// [ b d f ]   [ y ]
+	//             [ 1 ]
+	//
+	// In other words:
+	//  x -> a*x + c*y + e
+	//  y -> b*x + d*y + f
+	//
+	// In other other words:
+	//  (a,b) is the new "x direction", (c,d) is the new "y direction", and (e,f) is the new "center"
+
+	//Set to identity transformation:
+	//  thus, origin is in the upper left and size is width x height
+	ctx.setTransform(1,0, 0,1, 0,0);
+	// https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setTransform
+
+	//Draw a filled rectangle over the entire canvas to set the background color:
+	ctx.fillStyle = '#f0ff'; // Note this is #RGBA hex; you can also use #RRGGBBAA for more precision, and other CSS-style color names.
+	ctx.fillRect(0,0, width, height);
+	// https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/fillStyle
+	// https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/fillRect
+
+	//Now set the transform to a [-aspect,aspect]x[-1,1] coordinate system with +y being up and +x being right.
+	// why? because it's more convenient to not need to think in pixels!
+	const aspect = width/height;
+	ctx.setTransform(width/(2.0*aspect),0.0, 0.0,-height/2.0, 0.5*width,0.5*height);
+
+	//...though it is useful to remember how big a pixel is when setting line widths, sometimes.
+	const px = 2.0 / height;
+
+	//Most drawing on the canvas is done with 'paths'. Paths are a series of lines, arcs, and curves...
+	ctx.beginPath(); //starting a new path
+	ctx.moveTo(0, 0); //move to the center...
+	ctx.lineTo(0.75, 0); //draw a line to the right...
+	ctx.lineTo(0.75, 0.75); //and up...
+	ctx.closePath(); //and back to the initial point
+
+	//make a black 5px stroke:
+	ctx.lineWidth = 5 * px;
+	ctx.strokeStyle = '#000000ff';
+	ctx.stroke();
+
+	//also make a white 3px stroke:
+	ctx.lineWidth = 3 * px;
+	ctx.strokeStyle = '#ffffffff';
+	ctx.stroke();
+}
+
+//call draw once for initial drawing:
+draw(0.0);
+
+</script>
+</body>
+</html>
